@@ -82,4 +82,4 @@ lint/tmp/
 
 .DS_Store
 /.idea
-*.orig
+.orig
