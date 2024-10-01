@@ -6,10 +6,13 @@ import com.arcrobotics.ftclib.gamepad.GamepadEx
 import com.arcrobotics.ftclib.gamepad.GamepadKeys
 import com.arcrobotics.ftclib.hardware.motors.Motor
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot
+import com.qualcomm.robotcore.eventloop.opmode.Disabled
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
+import org.firstinspires.ftc.teamcode.util.PS5Keys
 
 @TeleOp
+@Disabled
 class DriveTrainTest : LinearOpMode() {
     private var driveMode = DriveMode.ROBOT_CENTRIC
 
@@ -51,7 +54,7 @@ class DriveTrainTest : LinearOpMode() {
         while (opModeIsActive()) {
             val yaw = imu.robotYawPitchRollAngles.yaw
 
-            if (dc.wasJustPressed(GamepadKeys.Button.Y)) {
+            if (dc.wasJustPressed(PS5Keys.Button.TRIANGLE.xboxButton)) {
                 toggleDriveMode()
             }
 
