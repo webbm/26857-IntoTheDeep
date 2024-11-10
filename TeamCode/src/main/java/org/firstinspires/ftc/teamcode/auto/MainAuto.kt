@@ -4,8 +4,10 @@ import com.arcrobotics.ftclib.drivebase.MecanumDrive
 import com.arcrobotics.ftclib.hardware.motors.Motor
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
+import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.teamcode.robot.Diffy
 import org.firstinspires.ftc.teamcode.robot.LowerSlide
+import java.util.concurrent.TimeUnit
 
 @Autonomous
 class MainAuto : LinearOpMode() {
@@ -14,28 +16,20 @@ class MainAuto : LinearOpMode() {
         telemetry.addLine("Point the bot at the parking zone")
         telemetry.update()
 
-        val lowerSlide = LowerSlide(hardwareMap)
-        val diffy = Diffy(hardwareMap)
-
-        val frontLeft = Motor(hardwareMap, "frontLeft", Motor.GoBILDA.RPM_1150)
-        val frontRight = Motor(hardwareMap, "frontRight", Motor.GoBILDA.RPM_1150)
-        val backLeft = Motor(hardwareMap, "backLeft", Motor.GoBILDA.RPM_1150)
-        val backRight = Motor(hardwareMap, "backRight", Motor.GoBILDA.RPM_1150)
+        val frontLeft = Motor(hardwareMap, "left_front", Motor.GoBILDA.RPM_1150)
+        val frontRight = Motor(hardwareMap, "right_front", Motor.GoBILDA.RPM_1150)
+        val backLeft = Motor(hardwareMap, "left_back", Motor.GoBILDA.RPM_1150)
+        val backRight = Motor(hardwareMap, "right_back", Motor.GoBILDA.RPM_1150)
         val driveTrain = MecanumDrive(frontLeft, frontRight, backLeft, backRight)
-
-        lowerSlide.setPosition(0.0)
-        diffy.setDiffyPosition(Diffy.DiffyPosition.PARKED)
-        //run stop ingestion
-
 
         waitForStart()
 
-        diffy.stopIngestion()
+        val elapsedTime = ElapsedTime()
 
-        lowerSlide.setPosition(0.18)
+        while (elapsedTime.time(TimeUnit.MILLISECONDS) < 500) {
+            driveTrain.driveRobotCentric(0.5, 0.0, 0.0)
+        }
 
-        sleep(5000)
-        // run reverse ingestion
-
+        driveTrain.stop()
     }
 }

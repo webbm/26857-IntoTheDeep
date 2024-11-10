@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.tele
 import com.arcrobotics.ftclib.drivebase.MecanumDrive
 import com.arcrobotics.ftclib.gamepad.GamepadEx
 import com.arcrobotics.ftclib.hardware.motors.Motor
+import com.qualcomm.robotcore.eventloop.opmode.Disabled
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.teamcode.robot.Diffy
@@ -11,6 +12,7 @@ import org.firstinspires.ftc.teamcode.robot.VerticalSlide
 import org.firstinspires.ftc.teamcode.util.PS5Keys
 import kotlin.math.max
 
+@Disabled
 @TeleOp
 class MainTele : LinearOpMode() {
 
@@ -22,14 +24,14 @@ class MainTele : LinearOpMode() {
         val dc = GamepadEx(gamepad1)
         val mc = GamepadEx(gamepad2)
 
-        val frontLeft = Motor(hardwareMap, "frontLeft", Motor.GoBILDA.RPM_1150)
-        val frontRight = Motor(hardwareMap, "frontRight", Motor.GoBILDA.RPM_1150)
-        val backLeft = Motor(hardwareMap, "backLeft", Motor.GoBILDA.RPM_1150)
-        val backRight = Motor(hardwareMap, "backRight", Motor.GoBILDA.RPM_1150)
+        val frontLeft = Motor(hardwareMap, "left_front", Motor.GoBILDA.RPM_1150)
+        val frontRight = Motor(hardwareMap, "right_front", Motor.GoBILDA.RPM_1150)
+        val backLeft = Motor(hardwareMap, "left_back", Motor.GoBILDA.RPM_1150)
+        val backRight = Motor(hardwareMap, "right_back", Motor.GoBILDA.RPM_1150)
         val driveTrain = MecanumDrive(frontLeft, frontRight, backLeft, backRight)
 
         lowerSlide.setPosition(0.0)
-        diffy.setDiffyPosition(Diffy.DiffyPosition.PARKED)
+//        diffy.setDiffyPosition(Diffy.DiffyPosition.PARKED)
 
         waitForStart()
 
@@ -88,7 +90,7 @@ class MainTele : LinearOpMode() {
                 diffy.setDiffyPosition(Diffy.DiffyPosition.CRUISE)
             }
             else if (mc.wasJustPressed(PS5Keys.Button.TRIANGLE.xboxButton)) {
-                diffy.setDiffyPosition(Diffy.DiffyPosition.PARKED)
+//                diffy.setDiffyPosition(Diffy.DiffyPosition.PARKED)
             }
             else if (mc.wasJustPressed(PS5Keys.Button.CROSS.xboxButton)) {
                 diffy.setDiffyPosition(Diffy.DiffyPosition.SCORE)
