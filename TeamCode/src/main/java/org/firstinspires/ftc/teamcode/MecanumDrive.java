@@ -63,28 +63,40 @@ public class MecanumDrive {
                 RevHubOrientationOnRobot.UsbFacingDirection.UP;
 
         // drive model parameters
-        public double inPerTick = 0.5749904000996554; // SparkFun OTOS Note: you can probably leave this at 1
-        public double lateralInPerTick = inPerTick;
-        public double trackWidthTicks = 13.584585801975829;
+//        public double inPerTick = 1.45; // SparkFun OTOS Note: you can probably leave this at 1
+        public double inPerTick = 1.0; // SparkFun OTOS Note: you can probably leave this at 1
+//        public double lateralInPerTick = 0.85;
+        public double lateralInPerTick = 0.3581;
+//        public double trackWidthTicks = 11.2743;
+        public double trackWidthTicks = 10.8136759;
 
         // feedforward parameters (in tick units)
-        public double kS = 1.141;
-        public double kV = 0.087;
-        public double kA = 0.02;
+//        public double kS = 2.0573;
+        public double kS = 1.52;
+//        public double kV = 0.1030;
+        public double kV = 0.125;
+//        public double kA = 0.032;
+        public double kA = 0.022;
 
         // path profile parameters (in inches)
-        public double maxWheelVel = 35;
-        public double minProfileAccel = -30;
-        public double maxProfileAccel = 35;
+//        public double maxWheelVel = 55;
+        public double maxWheelVel = 50;
+//        public double minProfileAccel = -90;
+        public double minProfileAccel = -70;
+//        public double maxProfileAccel = 55;
+        public double maxProfileAccel = 50;
 
         // turn profile parameters (in radians)
         public double maxAngVel = Math.PI; // shared with path
         public double maxAngAccel = Math.PI;
 
         // path controller gains
-        public double axialGain = 1;
-        public double lateralGain = 0.33;
-        public double headingGain = 10.0; // shared with turn
+//        public double axialGain = 2.2;
+        public double axialGain = 5.0;
+//        public double lateralGain = 2.9;
+        public double lateralGain = 4.1;
+//        public double headingGain = 3.10; // shared with turn
+        public double headingGain = 5.0; // shared with turn
 
         public double axialVelGain = 0.0;
         public double lateralVelGain = 0.0;
@@ -110,12 +122,12 @@ public class MecanumDrive {
 
     public final VoltageSensor voltageSensor;
 
-    public final LazyImu lazyImu;
+    public LazyImu lazyImu;
 
     public final Localizer localizer;
     public Pose2d pose;
 
-    public final LinkedList<Pose2d> poseHistory = new LinkedList<>();
+    public LinkedList<Pose2d> poseHistory = new LinkedList<>();
 
     private final DownsampledWriter estimatedPoseWriter = new DownsampledWriter("ESTIMATED_POSE", 50_000_000);
     private final DownsampledWriter targetPoseWriter = new DownsampledWriter("TARGET_POSE", 50_000_000);

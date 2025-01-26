@@ -10,10 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import org.firstinspires.ftc.teamcode.Drawing;
-import org.firstinspires.ftc.teamcode.MecanumDrive;
-import org.firstinspires.ftc.teamcode.SparkFunOTOSDrive;
-import org.firstinspires.ftc.teamcode.TankDrive;
+import org.firstinspires.ftc.teamcode.*;
 
 @TeleOp
 public class LocalizationTest extends LinearOpMode {
@@ -21,7 +18,8 @@ public class LocalizationTest extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
-        SparkFunOTOSDrive drive = new SparkFunOTOSDrive(hardwareMap, new Pose2d(36, 0, Math.toRadians(90)));
+//        SparkFunOTOSDrive drive = new SparkFunOTOSDrive(hardwareMap, new Pose2d(48, 0, Math.toRadians(90)));
+        PinpointDrive drive = new PinpointDrive(hardwareMap, new Pose2d(48, 0, Math.toRadians(90)));
 
         waitForStart();
 

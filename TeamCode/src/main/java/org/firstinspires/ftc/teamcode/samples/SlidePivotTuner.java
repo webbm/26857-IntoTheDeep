@@ -27,7 +27,7 @@ public class SlidePivotTuner extends OpMode {
 
     public static double target = 0;
 
-    private final double ticksPerDegree = 751.8 / 360;
+    private final double ticksPerDegree = 11.37;
 
     private DcMotorEx pivot1;
     private DcMotorEx pivot2;

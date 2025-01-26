@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 @Config
 @TeleOp
+@Disabled
 public class PID1 extends OpMode {
 
     private PIDController controller;

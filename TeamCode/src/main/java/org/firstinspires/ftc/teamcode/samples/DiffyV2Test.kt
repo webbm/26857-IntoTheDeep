@@ -16,6 +16,7 @@ import org.firstinspires.ftc.teamcode.util.PS5Keys
 
 @Config
 @TeleOp
+@Disabled
 class DiffyV2Test: LinearOpMode() {
 
     // 1 is right and 2 is left
