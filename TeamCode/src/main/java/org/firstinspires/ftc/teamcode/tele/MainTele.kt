@@ -5,7 +5,10 @@ import com.arcrobotics.ftclib.gamepad.GamepadEx
 import com.arcrobotics.ftclib.hardware.motors.Motor
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
-import org.firstinspires.ftc.teamcode.robot.*
+import org.firstinspires.ftc.teamcode.robot.Claw
+import org.firstinspires.ftc.teamcode.robot.Pivot
+import org.firstinspires.ftc.teamcode.robot.VerticalSlide
+import org.firstinspires.ftc.teamcode.robot.Wrist
 import org.firstinspires.ftc.teamcode.util.PS5Keys
 import kotlin.math.max
 
@@ -51,6 +54,8 @@ class MainTele : LinearOpMode() {
 //        val specClaw = SpecClaw(hardwareMap)
         val wrist = Wrist(hardwareMap)
         val verticalSlide = VerticalSlide(hardwareMap)
+        var manualOverride = false
+        var resetEncoders = false
 
         while (opModeIsActive()) {
             dc.readButtons()
@@ -64,11 +69,41 @@ class MainTele : LinearOpMode() {
                 -dc.rightX * driveSpeedMultiplier
             )
 
+            val driverDpadDown = dc.getGamepadButton(PS5Keys.Button.DPAD_DOWN.xboxButton)
+            val driverDpadUp = dc.getGamepadButton(PS5Keys.Button.DPAD_UP.xboxButton)
+
+            val driverCrossButton = dc.getGamepadButton(PS5Keys.Button.CROSS.xboxButton)
+            val driverTriangleButton = dc.getGamepadButton(PS5Keys.Button.TRIANGLE.xboxButton)
+
+            if (!manualOverride && driverDpadDown.and(driverCrossButton).get()) {
+                manualOverride = true
+            }
+
+            if (manualOverride && driverDpadUp.and(driverTriangleButton).get()) {
+                resetEncoders = true
+            }
+
+            if (resetEncoders) {
+                pivot.resetEncoder()
+                verticalSlide.resetEncoders()
+                resetEncoders = false
+                manualOverride = false
+            }
+
+            if (manualOverride) {
+                gamepad1.rumble(0.5, 1.0, 500)
+                gamepad2.rumble(0.5, 1.0, 500)
+            }
+            else {
+                gamepad1.stopRumble()
+                gamepad2.stopRumble()
+            }
+
             // pivot
-            pivot.setPower(-gamepad2.left_stick_y * 0.35)
+            pivot.setPower(-gamepad2.left_stick_y * 0.35, manualOverride)
 
             // vertical slide
-            verticalSlide.setPower(gamepad2.right_stick_y.toDouble(), pivot.getRawPosition())
+            verticalSlide.setPower(gamepad2.right_stick_y.toDouble(), pivot.getRawPosition(), manualOverride)
 
             if (step != null) {
                 if (step.isComplete()) {
@@ -81,7 +116,7 @@ class MainTele : LinearOpMode() {
             if (gamepad2.right_trigger > 0.5 && step == null) {
                 //picking up
                 step = PickupStep(
-                    wristPosition = Wrist.Position.LINE_UP,
+                    wristPosition = Wrist.Position.MID,
                     clawPosition = Claw.Position.OPEN,
                     threshold = 200L,
                     startTime = System.currentTimeMillis(),
@@ -93,7 +128,7 @@ class MainTele : LinearOpMode() {
                         nextStep = PickupStep(
                             wristPosition = null,
                             clawPosition = Claw.Position.CLOSED,
-                            threshold = 200L,
+                            threshold = 150L,
                             startTime = null,
                             nextStep = PickupStep(
                                 wristPosition = Wrist.Position.MID,
@@ -108,50 +143,24 @@ class MainTele : LinearOpMode() {
 
                 wrist.setPosition(step.wristPosition!!)
                 claw.setPosition(step.clawPosition!!)
-            } else if (gamepad2.left_trigger > 0.5) {
+            }
+            else if (gamepad2.left_trigger > 0.5) {
                 //scoring
                 wrist.setPosition(Wrist.Position.OUT_TAKE)
                 sleep(100)
                 claw.setPosition(Claw.Position.OPEN)
                 sleep(200)
-                wrist.setPosition(Wrist.Position.LINE_UP)
+                wrist.setPosition(Wrist.Position.MID)
                 step = null
             }
-
-            /*
-            // right trigger - closes both claws
-            if (gamepad2.right_trigger > 0.5) {
-                claw.setPosition(Claw.Position.CLOSED)
-                sleep(200)
-                wrist.setPosition(Wrist.Position.OUT_TAKE)
-            }
-
-            // left trigger - opens both claws
-            if (gamepad2.left_trigger > 0.5) {
-                claw.setPosition(Claw.Position.OPEN)
-                sleep(200)
-                wrist.setPosition(Wrist.Position.LINE_UP)
-            }
-
-            // right bumper - wrist intake
-            if (mc.wasJustPressed(PS5Keys.Button.RIGHT_BUMPER.xboxButton)) {
-                wrist.setPosition(Wrist.Position.INTAKE)
-            }
-            // left bumper - wrist outtake
-            else if (mc.wasJustPressed(PS5Keys.Button.LEFT_BUMPER.xboxButton)) {
-                wrist.setPosition(Wrist.Position.OUT_TAKE)
-            }
-            // x - wrist middle
-            else if (mc.wasJustPressed(PS5Keys.Button.CROSS.xboxButton)) {
-                wrist.setPosition(Wrist.Position.MID)
-            }
-             */
 
             telemetry.addData("pivot position", pivot.getRawPosition())
             telemetry.addData("slide position", verticalSlide.getRawPosition())
             telemetry.addData("slide power", gamepad2.right_stick_y * 0.7)
             telemetry.addData("claw position", claw.getRawPosition())
             telemetry.addData("wrist position", wrist.getRawPosition())
+            telemetry.addData("manual override", manualOverride)
+            telemetry.addData("reset encoders", resetEncoders)
             telemetry.update()
             idle()
         }

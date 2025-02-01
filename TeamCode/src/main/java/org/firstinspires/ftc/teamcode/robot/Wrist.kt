@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap
 class Wrist(hardwareMap: HardwareMap) {
     private val wrist = hardwareMap.servo.get("wrist")
 
-    private var position: Position = Position.OUT_TAKE
+    private var position: Position = Position.INTAKE
 
     init {
         setPosition(position)
@@ -13,9 +13,10 @@ class Wrist(hardwareMap: HardwareMap) {
 
     enum class Position(val position: Double) {
         INTAKE(0.0),
-        LINE_UP(0.15),
+        LINE_UP(0.1),
         MID(0.2),
         OUT_TAKE(0.35),
+        PUSH(0.42),
     }
 
     fun setPosition(position: Position) {

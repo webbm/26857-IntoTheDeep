@@ -17,11 +17,21 @@ class Pivot(hardwareMap: HardwareMap) {
         return pivot.currentPosition
     }
 
+    fun resetEncoder() {
+        pivot.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+        pivot.mode = DcMotor.RunMode.RUN_USING_ENCODER
+    }
+
     /**
      * if the current position is less than -4000, don't allow postive power
      * if the current position is greater than 0, don't allow negative power
      */
-    fun setPower(power: Double) {
+    fun setPower(power: Double, manualOverride: Boolean = false) {
+        if (manualOverride) {
+            pivot.power = power
+            return
+        }
+
         if (pivot.currentPosition < -4000 && power > 0) {
             pivot.power = 0.0
         } else if (pivot.currentPosition > 0 && power < 0) {

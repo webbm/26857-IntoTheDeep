@@ -2,10 +2,7 @@ package org.firstinspires.ftc.teamcode.auto
 
 import com.acmerobotics.roadrunner.*
 import com.acmerobotics.roadrunner.ftc.runBlocking
-import com.qualcomm.hardware.rev.Rev2mDistanceSensor
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
-import com.qualcomm.robotcore.hardware.DistanceSensor
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
 import org.firstinspires.ftc.teamcode.PinpointDrive
 import org.firstinspires.ftc.teamcode.actions.*
 import org.firstinspires.ftc.teamcode.robot.Claw
@@ -31,10 +28,10 @@ data class RedPositionData(
     override val turnToBasket: Double = Math.toRadians(45.0),
     override val firstSample: Double = Math.toRadians(78.0),
     override val secondSample: Double = Math.toRadians(100.0),
-    override val thirdSample: Double = Math.toRadians(125.0),
-    override val firstSampleReachDistance: Int = -1725,
-    override val secondSampleReachDistance: Int = -1660,
-    override val thirdSampleReachDistance: Int = -1800,
+    override val thirdSample: Double = Math.toRadians(120.0),
+    override val firstSampleReachDistance: Int = -1850, // -1725,
+    override val secondSampleReachDistance: Int = -1750, // -1660,
+    override val thirdSampleReachDistance: Int = -1750, //-1800,
 ) : PositionData
 
 data class BluePositionData(
@@ -44,9 +41,9 @@ data class BluePositionData(
     override val firstSample: Double = Math.toRadians(79.0 + 180.0),
     override val secondSample: Double = Math.toRadians(98.0 + 180.0),
     override val thirdSample: Double = Math.toRadians(125.0 + 180.0),
-    override val firstSampleReachDistance: Int = -1725,
-    override val secondSampleReachDistance: Int = -1610,
-    override val thirdSampleReachDistance: Int = -1770,
+    override val firstSampleReachDistance: Int = -1850, //-1725,
+    override val secondSampleReachDistance: Int = -1750, //-1610,
+    override val thirdSampleReachDistance: Int = -1750, //-1770,
 ) : PositionData
 
 open class BaseAuto(private val positionData: PositionData) : LinearOpMode() {
@@ -54,7 +51,7 @@ open class BaseAuto(private val positionData: PositionData) : LinearOpMode() {
     fun scoreAction(wrist: Wrist, slide: VerticalSlide, claw: Claw): Action {
         return SequentialAction(
             ParallelAction(
-                WristAction(wrist, Wrist.Position.INTAKE),
+                WristAction(wrist, Wrist.Position.MID),
                 VerticalSlideAction(slide, -2550),
             ),
             WaitUntilAction {
@@ -64,7 +61,7 @@ open class BaseAuto(private val positionData: PositionData) : LinearOpMode() {
             DelayAction(300),
             ClawAction(claw, Claw.Position.OPEN),
             DelayAction(200),
-            WristAction(wrist, Wrist.Position.INTAKE),
+            WristAction(wrist, Wrist.Position.MID),
             DelayAction(100),
             VerticalSlideAction(slide, 0),
         )
@@ -72,9 +69,15 @@ open class BaseAuto(private val positionData: PositionData) : LinearOpMode() {
 
     fun grabSample(claw: Claw, slide: VerticalSlide, wrist: Wrist, distance: Int): Action {
         return SequentialAction(
-            ClawAction(claw, Claw.Position.SUPER_OPEN),
+            ClawAction(claw, Claw.Position.OPEN),
             VerticalSlideAction(slide, distance),
-            DelayAction(1000),
+            DelayAction(300),
+            WristAction(wrist, Wrist.Position.PUSH),
+            DelayAction(800),
+            WristAction(wrist, Wrist.Position.INTAKE),
+            DelayAction(50),
+            ClawAction(claw, Claw.Position.OPEN),
+            DelayAction(750),
             ClawAction(claw, Claw.Position.CLOSED),
             DelayAction(200),
             WristAction(wrist, Wrist.Position.MID),
@@ -85,10 +88,10 @@ open class BaseAuto(private val positionData: PositionData) : LinearOpMode() {
 
     override fun runOpMode() {
         val pivot = Pivot(hardwareMap)
-        val pivotUpAction = PivotUpAction(pivot, -3900)
+        val initialPivotUpAction = PivotUpAction(pivot, -3750)
+        val pivotUpAction = PivotUpAction(pivot, -3950)
         val pivotDownAction = PivotDownAction(pivot)
         val slide = VerticalSlide(hardwareMap)
-        val bucketDistanceSensor = hardwareMap.get(DistanceSensor::class.java, "distance bucket") as Rev2mDistanceSensor
 
         waitForStart()
 
@@ -112,24 +115,14 @@ open class BaseAuto(private val positionData: PositionData) : LinearOpMode() {
                 SequentialAction(
                     ParallelAction(
                         ClawAction(claw, Claw.Position.CLOSED),
-                        WristAction(wrist, Wrist.Position.OUT_TAKE),
-                        pivotUpAction,
+                        WristAction(wrist, Wrist.Position.LINE_UP),
+                        initialPivotUpAction,
                         strafeToScoringPositionAction,
                     ),
                 )
             )
 
         runBlocking(performMovement.build())
-
-        // don't go further
-        while (true) {
-            telemetry.addData("range mm", bucketDistanceSensor.getDistance(DistanceUnit.MM))
-            telemetry.addData("range cm", bucketDistanceSensor.getDistance(DistanceUnit.CM))
-            telemetry.addData("range in", bucketDistanceSensor.getDistance(DistanceUnit.INCH))
-            telemetry.update()
-
-            idle()
-        }
 
         performMovement = drive
             .actionBuilder(drive.poseHistory.last)
@@ -150,7 +143,10 @@ open class BaseAuto(private val positionData: PositionData) : LinearOpMode() {
             .stopAndAdd(
                 SequentialAction(
                     DelayAction(500),
-                    ParallelAction(turnToFirstSample, pivotDownAction, WristAction(wrist, Wrist.Position.INTAKE)),
+                    ParallelAction(
+                        turnToFirstSample,
+                        pivotDownAction,
+                        WristAction(wrist, Wrist.Position.INTAKE)),
                     grabSample(claw, slide, wrist, positionData.firstSampleReachDistance)
                 )
             )
@@ -186,7 +182,10 @@ open class BaseAuto(private val positionData: PositionData) : LinearOpMode() {
             .stopAndAdd(
                 SequentialAction(
                     DelayAction(500),
-                    ParallelAction(turnToSecondSample, pivotDownAction, WristAction(wrist, Wrist.Position.INTAKE)),
+                    ParallelAction(
+                        turnToSecondSample,
+                        pivotDownAction,
+                        WristAction(wrist, Wrist.Position.INTAKE)),
                     grabSample(claw, slide, wrist, positionData.secondSampleReachDistance)
                 )
             )
@@ -222,7 +221,10 @@ open class BaseAuto(private val positionData: PositionData) : LinearOpMode() {
             .stopAndAdd(
                 SequentialAction(
                     DelayAction(500),
-                    ParallelAction(turnToThirdSample, pivotDownAction, WristAction(wrist, Wrist.Position.INTAKE)),
+                    ParallelAction(
+                        turnToThirdSample,
+                        pivotDownAction,
+                        WristAction(wrist, Wrist.Position.INTAKE)),
                     grabSample(claw, slide, wrist, positionData.thirdSampleReachDistance)
                 )
             )

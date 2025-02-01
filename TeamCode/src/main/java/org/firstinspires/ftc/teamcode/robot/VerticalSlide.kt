@@ -16,10 +16,20 @@ class VerticalSlide(hardwareMap: HardwareMap) {
         return slide.currentPosition
     }
 
-    fun setPower(power: Double, pivotPosition: Int) {
+    fun resetEncoders() {
+        slide.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+        slide.mode = DcMotor.RunMode.RUN_USING_ENCODER
+    }
+
+    fun setPower(power: Double, pivotPosition: Int, manualOverride: Boolean = false) {
+        if (manualOverride) {
+            slide.power = power
+            return
+        }
+
         if (pivotPosition > -2000) {
-//             pivot is lower than 45 degrees, limit extension
-            if (slide.currentPosition < -1901 && power < 0) {
+//         pivot is lower than 45 degrees, limit extension
+            if (slide.currentPosition < -1638 && power < 0) {
                 slide.power = 0.0
             } else if (slide.currentPosition > 0 && power > 0) {
                 slide.power = 0.0
