@@ -1,36 +1,31 @@
-package org.firstinspires.ftc.teamcode.vision
+package org.firstinspires.ftc.teamcode.samplepiplines
 
 import org.opencv.core.*
 import org.opencv.imgproc.Imgproc
 import org.openftc.easyopencv.OpenCvPipeline
 
 class YellowDetectionPipeline : OpenCvPipeline() {
-    // Output data
-    var angle: Double = 0.0
-    var hasDetection: Boolean = false
+    companion object {
+        private val YELLOW_LOWER = Scalar(100.0, 100.0, 100.0)
+        private val YELLOW_UPPER = Scalar(200.0, 255.0, 255.0)
+        private const val FRAME_CENTER_X = 320.0 // Assuming 640x480 resolution
+        private const val HORIZONTAL_FOV = 60.0  // Camera's horizontal field of view in degrees
+    }
 
-    // Processing constants
-    private val YELLOW_LOWER = Scalar(20.0, 100.0, 100.0)  // Lower bound
-    private val YELLOW_UPPER = Scalar(40.0, 255.0, 255.0)  // Upper bound // HSV upper bounds
-    private val MIN_AREA = 500  // Minimum pixel area to be considered a valid detection
-
-    // Processing mats
     private val hsvMat = Mat()
     private val maskMat = Mat()
     private val hierarchyMat = Mat()
 
+    private var isSampleVisible = false
+    private var sampleHeading = 0.0
+
     override fun processFrame(input: Mat): Mat {
-        // Clear previous detection
-        hasDetection = false
-        angle = 0.0
+        isSampleVisible = false
+        sampleHeading = 0.0
 
-        // Convert to HSV colorspace
-        Imgproc.cvtColor(input, hsvMat, Imgproc.COLOR_RGB2HSV)
-
-        // Create mask for blue colors
+        Imgproc.cvtColor(input, hsvMat, Imgproc.COLOR_BGR2HSV)
         Core.inRange(hsvMat, YELLOW_LOWER, YELLOW_UPPER, maskMat)
 
-        // Find contours in the mask
         val contours = ArrayList<MatOfPoint>()
         Imgproc.findContours(
             maskMat,
@@ -40,41 +35,35 @@ class YellowDetectionPipeline : OpenCvPipeline() {
             Imgproc.CHAIN_APPROX_SIMPLE
         )
 
-        // Find the largest blue contour
-        var maxArea = 0.0
-        var largestContour: MatOfPoint? = null
+        if (contours.isNotEmpty()) {
+            val largestContour = contours.maxByOrNull { Imgproc.contourArea(it) }
+            if (largestContour != null && Imgproc.contourArea(largestContour) > 100) {
+                isSampleVisible = true
+                val boundingRect = Imgproc.boundingRect(largestContour)
+                val sampleCenterX = boundingRect.x + (boundingRect.width / 2.0)
 
-        for (contour in contours) {
-            val area = Imgproc.contourArea(contour)
-            if (area > maxArea && area > MIN_AREA) {
-                maxArea = area
-                largestContour = contour
-            }
-        }
+                // Calculate heading angle relative to robot
+                val pixelOffset = sampleCenterX - FRAME_CENTER_X
+                sampleHeading = (pixelOffset / FRAME_CENTER_X) * (HORIZONTAL_FOV / 2.0)
 
-        // If we found a valid contour, calculate its angle
-        largestContour?.let { contour ->
-            // Fit an ellipse to the contour to find its orientation
-            if (contour.toArray().size >= 5) {
-                val points2f = MatOfPoint2f()
-                contour.convertTo(points2f, CvType.CV_32FC2)
-                val rotatedRect = Imgproc.fitEllipse(points2f)
-
-                // Update detection data
-                angle = rotatedRect.angle
-                hasDetection = true
-
-                // Draw the detection on the output image
-                Imgproc.ellipse(input, rotatedRect, Scalar(40.0, 255.0, 255.0), 2)
-
-                // Draw angle text
+                // Draw visual feedback
+                Imgproc.rectangle(input, boundingRect, Scalar(0.0, 255.0, 0.0), 2)
+                // Draw center crosshair
+                Imgproc.line(
+                    input,
+                    Point(FRAME_CENTER_X, 0.0),
+                    Point(FRAME_CENTER_X, input.rows().toDouble()),
+                    Scalar(255.0, 0.0, 0.0),
+                    1
+                )
+                // Draw heading information
                 Imgproc.putText(
                     input,
-                    "Angle: %.0f".format(angle),
+                    "Heading: %.1f°".format(sampleHeading),
                     Point(10.0, 30.0),
-                    Imgproc.FONT_ITALIC,
+                    Imgproc.FONT_HERSHEY_SIMPLEX,
                     1.0,
-                    Scalar(0.0, 0.0, 0.0),
+                    Scalar(0.0, 255.0, 0.0),
                     2
                 )
             }
@@ -83,5 +72,6 @@ class YellowDetectionPipeline : OpenCvPipeline() {
         return input
     }
 
-    fun hasValidDetection(): Boolean = hasDetection
+    fun isSampleVisible(): Boolean = isSampleVisible
+    fun getSampleHeading(): Double = sampleHeading
 }

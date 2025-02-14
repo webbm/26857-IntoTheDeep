@@ -22,27 +22,51 @@ interface PositionData {
     val thirdSampleReachDistance: Int
 }
 
-data class RedPositionData(
+data class Field1RedPositionData(
     override val startingPosition: Pose2d = Pose2d(-35.0, -62.75, Math.toRadians(90.0)),
-    override val scoringPosition: Vector2d = Vector2d(-57.5, -53.5),
+    override val scoringPosition: Vector2d = Vector2d(-56.5, -52.5),
     override val turnToBasket: Double = Math.toRadians(45.0),
-    override val firstSample: Double = Math.toRadians(78.0),
-    override val secondSample: Double = Math.toRadians(100.0),
-    override val thirdSample: Double = Math.toRadians(120.0),
-    override val firstSampleReachDistance: Int = -1850, // -1725,
-    override val secondSampleReachDistance: Int = -1750, // -1660,
+    override val firstSample: Double = Math.toRadians(74.0),
+    override val secondSample: Double = Math.toRadians(89.5),
+    override val thirdSample: Double = Math.toRadians(115.0),
+    override val firstSampleReachDistance: Int = -1650, // -1725,
+    override val secondSampleReachDistance: Int = -1650, // -1660,
     override val thirdSampleReachDistance: Int = -1750, //-1800,
 ) : PositionData
 
-data class BluePositionData(
+data class Field1BluePositionData(
     override val startingPosition: Pose2d = Pose2d(35.0, 62.75, Math.toRadians(270.0)),
-    override val scoringPosition: Vector2d = Vector2d(57.5, 53.5),
+    override val scoringPosition: Vector2d = Vector2d(56.5, 52.5),
     override val turnToBasket: Double = Math.toRadians(225.0),
-    override val firstSample: Double = Math.toRadians(79.0 + 180.0),
-    override val secondSample: Double = Math.toRadians(98.0 + 180.0),
-    override val thirdSample: Double = Math.toRadians(125.0 + 180.0),
-    override val firstSampleReachDistance: Int = -1850, //-1725,
-    override val secondSampleReachDistance: Int = -1750, //-1610,
+    override val firstSample: Double = Math.toRadians(74.0 + 180.0),
+    override val secondSample: Double = Math.toRadians(89.5 + 180.0),
+    override val thirdSample: Double = Math.toRadians(115.0 + 180.0),
+    override val firstSampleReachDistance: Int = -1650, //-1725,
+    override val secondSampleReachDistance: Int = -1650, //-1610,
+    override val thirdSampleReachDistance: Int = -1750, //-1770,
+) : PositionData
+
+data class Field2RedPositionData(
+    override val startingPosition: Pose2d = Pose2d(-35.0, -62.75, Math.toRadians(90.0)),
+    override val scoringPosition: Vector2d = Vector2d(-56.5, -52.5),
+    override val turnToBasket: Double = Math.toRadians(45.0),
+    override val firstSample: Double = Math.toRadians(74.0),
+    override val secondSample: Double = Math.toRadians(89.5),
+    override val thirdSample: Double = Math.toRadians(115.0),
+    override val firstSampleReachDistance: Int = -1650, // -1725,
+    override val secondSampleReachDistance: Int = -1650, // -1660,
+    override val thirdSampleReachDistance: Int = -1750, //-1800,
+) : PositionData
+
+data class Field2BluePositionData(
+    override val startingPosition: Pose2d = Pose2d(35.0, 62.75, Math.toRadians(270.0)),
+    override val scoringPosition: Vector2d = Vector2d(56.5, 52.5),
+    override val turnToBasket: Double = Math.toRadians(225.0),
+    override val firstSample: Double = Math.toRadians(74.0 + 180.0),
+    override val secondSample: Double = Math.toRadians(89.5 + 180.0),
+    override val thirdSample: Double = Math.toRadians(115.0 + 180.0),
+    override val firstSampleReachDistance: Int = -1650, //-1725,
+    override val secondSampleReachDistance: Int = -1650, //-1610,
     override val thirdSampleReachDistance: Int = -1750, //-1770,
 ) : PositionData
 
@@ -51,17 +75,17 @@ open class BaseAuto(private val positionData: PositionData) : LinearOpMode() {
     fun scoreAction(wrist: Wrist, slide: VerticalSlide, claw: Claw): Action {
         return SequentialAction(
             ParallelAction(
-                WristAction(wrist, Wrist.Position.MID),
-                VerticalSlideAction(slide, -2550),
+                WristAction(wrist, Wrist.Position.LINE_UP),
+                VerticalSlideAction(slide, -2400),
             ),
             WaitUntilAction {
-                slide.getRawPosition() >= -2450
+                slide.getRawPositions().first >= -2350
             },
             WristAction(wrist, Wrist.Position.OUT_TAKE),
             DelayAction(300),
             ClawAction(claw, Claw.Position.OPEN),
             DelayAction(200),
-            WristAction(wrist, Wrist.Position.MID),
+            WristAction(wrist, Wrist.Position.LINE_UP),
             DelayAction(100),
             VerticalSlideAction(slide, 0),
         )
@@ -73,25 +97,24 @@ open class BaseAuto(private val positionData: PositionData) : LinearOpMode() {
             VerticalSlideAction(slide, distance),
             DelayAction(300),
             WristAction(wrist, Wrist.Position.PUSH),
-            DelayAction(800),
+            DelayAction(650),
             WristAction(wrist, Wrist.Position.INTAKE),
-            DelayAction(50),
-            ClawAction(claw, Claw.Position.OPEN),
-            DelayAction(750),
+            DelayAction(300),
             ClawAction(claw, Claw.Position.CLOSED),
             DelayAction(200),
-            WristAction(wrist, Wrist.Position.MID),
+            WristAction(wrist, Wrist.Position.LINE_UP),
             VerticalSlideAction(slide, 0),
-            DelayAction(750),
+            DelayAction(500),
         )
     }
 
     override fun runOpMode() {
         val pivot = Pivot(hardwareMap)
-        val initialPivotUpAction = PivotUpAction(pivot, -3750)
-        val pivotUpAction = PivotUpAction(pivot, -3950)
+        val initialPivotUpAction = PivotUpAction(pivot, -3850)
+        val pivotUpAction = PivotUpAction(pivot, -3850)
         val pivotDownAction = PivotDownAction(pivot)
         val slide = VerticalSlide(hardwareMap)
+//        val sampleDetector = YellowSampleDetector(hardwareMap)
 
         waitForStart()
 
@@ -165,7 +188,7 @@ open class BaseAuto(private val positionData: PositionData) : LinearOpMode() {
                     ParallelAction(
                         turnToBasket, pivotUpAction
                     ),
-                    scoreAction(wrist, slide, claw)
+                    scoreAction(wrist, slide, claw),
                 )
             )
 
@@ -204,7 +227,7 @@ open class BaseAuto(private val positionData: PositionData) : LinearOpMode() {
                     ParallelAction(
                         turnToBasket, pivotUpAction
                     ),
-                    scoreAction(wrist, slide, claw)
+                    scoreAction(wrist, slide, claw),
                 )
             )
 
@@ -261,9 +284,11 @@ open class BaseAuto(private val positionData: PositionData) : LinearOpMode() {
                 SequentialAction(
                     DelayAction(500),
                     ParallelAction(
-                        turnToBasket, pivotDownAction
+                        turnToBasket,
+                        pivotDownAction,
+                        VerticalSlideAction(slide, 0)
                     ),
-                    DelayAction(2000)
+                    DelayAction(1000)
                 )
             )
 

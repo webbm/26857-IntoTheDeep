@@ -83,7 +83,7 @@ public class PinpointDrive extends MecanumDrive {
         pinpoint = hardwareMap.get(GoBildaPinpointDriverRR.class,PARAMS.pinpointDeviceName);
 
         if (PARAMS.usePinpointIMUForTuning) {
-            lazyImu = new LazyImu(hardwareMap, PARAMS.pinpointDeviceName, new RevHubOrientationOnRobot(zyxOrientation(0, 0, 0)));
+            lazyImu = new LazyImu(hardwareMap, PARAMS.pinpointDeviceName, new RevHubOrientationOnRobot(zyxOrientation(7.5, 7, 3.75)));
         }
 
         // RR localizer note: don't love this conversion (change driver?)

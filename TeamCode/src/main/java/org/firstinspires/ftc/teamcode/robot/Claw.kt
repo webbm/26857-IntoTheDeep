@@ -14,7 +14,7 @@ class Claw(hardwareMap: HardwareMap) {
     }
 
     enum class Position(val position: Double) {
-        OPEN(0.1),
+        OPEN(0.15),
         CLOSED(0.0),
         SUPER_OPEN(0.2)
     }

@@ -8,7 +8,6 @@ import org.firstinspires.ftc.teamcode.robot.Wrist
 import org.firstinspires.ftc.teamcode.util.PS5Keys
 
 @TeleOp
-@Disabled
 class TuneWrist : LinearOpMode() {
 
     override fun runOpMode() {

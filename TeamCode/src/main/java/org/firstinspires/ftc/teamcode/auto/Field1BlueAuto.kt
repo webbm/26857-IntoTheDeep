@@ -2,5 +2,5 @@ package org.firstinspires.ftc.teamcode.auto
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 
-@Autonomous
-class RedAuto : BaseAuto(RedPositionData())
+@Autonomous(name = "Field 1 Blue")
+class Field1BlueAuto : BaseAuto(Field1BluePositionData())

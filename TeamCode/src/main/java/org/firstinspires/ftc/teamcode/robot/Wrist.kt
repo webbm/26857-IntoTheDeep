@@ -16,7 +16,7 @@ class Wrist(hardwareMap: HardwareMap) {
         LINE_UP(0.1),
         MID(0.2),
         OUT_TAKE(0.35),
-        PUSH(0.42),
+        PUSH(0.46),
     }
 
     fun setPosition(position: Position) {

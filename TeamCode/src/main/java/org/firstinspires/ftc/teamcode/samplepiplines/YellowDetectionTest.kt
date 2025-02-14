@@ -6,7 +6,6 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.hardware.Servo
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName
 import org.firstinspires.ftc.teamcode.vision.BlueDetectionPipeline
-import org.firstinspires.ftc.teamcode.vision.YellowDetectionPipeline
 import org.openftc.easyopencv.OpenCvCamera
 import org.openftc.easyopencv.OpenCvCameraFactory
 import org.openftc.easyopencv.OpenCvCameraRotation
@@ -66,9 +65,9 @@ class YellowDetectionTest : LinearOpMode() {
         servo.position = 0.53
 
         while (opModeIsActive()) {
-            if (pipeline.hasValidDetection()) {
+            if (pipeline.isSampleVisible()) {
                 // Get the detected angle
-                val detectedAngle = normalizeAngle(pipeline.angle)
+                val detectedAngle = normalizeAngle(pipeline.getSampleHeading())
 
                 // Convert angle to servo position (0.0 to 1.0)
                 val servoPosition = angleToServoPosition(detectedAngle)

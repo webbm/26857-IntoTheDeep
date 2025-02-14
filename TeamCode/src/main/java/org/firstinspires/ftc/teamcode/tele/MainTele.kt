@@ -154,8 +154,10 @@ class MainTele : LinearOpMode() {
                 step = null
             }
 
+            val (slide1Pos, slide2Pos) = verticalSlide.getRawPositions()
             telemetry.addData("pivot position", pivot.getRawPosition())
-            telemetry.addData("slide position", verticalSlide.getRawPosition())
+            telemetry.addData("slide1 position", slide1Pos)
+            telemetry.addData("slide2 position", slide2Pos)
             telemetry.addData("slide power", gamepad2.right_stick_y * 0.7)
             telemetry.addData("claw position", claw.getRawPosition())
             telemetry.addData("wrist position", wrist.getRawPosition())
